@@ -7,14 +7,14 @@ using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace OpenGL_Practice.Services.Classes
 {
-    public class TextureService
+    public static class TextureService
     {
-        private readonly Dictionary<string, int> _textureDict = new Dictionary<string,int>();
-        private readonly Dictionary<int, Vector2> _sizeDict = new Dictionary<int, Vector2>();
+        private static readonly Dictionary<string, int> TextureDict = new Dictionary<string,int>();
+        private static readonly Dictionary<int, Vector2> SizeDict = new Dictionary<int, Vector2>();
 
-        public int GetTexture(string fileName)
+        public static int  GetTexture(string fileName)
         {
-            if (_textureDict.ContainsKey(fileName)) return _textureDict[fileName];
+            if (TextureDict.ContainsKey(fileName)) return TextureDict[fileName];
 
 
             var image = new Bitmap(Image.FromFile(Assets.GetImage("Doge.bmp")));
@@ -35,15 +35,15 @@ namespace OpenGL_Practice.Services.Classes
                 (int) TextureMagFilter.Linear);
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
-            _textureDict[fileName] = texId;
-            _sizeDict[texId] = new Vector2(image.Width, image.Height);
+            TextureDict[fileName] = texId;
+            SizeDict[texId] = new Vector2(image.Width, image.Height);
 
             return texId;
         }
 
-        public Vector2 GetSize(int textureId)
+        public static Vector2 GetSize(int textureId)
         {
-            return _sizeDict[textureId];
+            return SizeDict[textureId];
         }
     }
 }

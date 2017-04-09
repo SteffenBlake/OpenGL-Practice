@@ -25,9 +25,9 @@ namespace OpenGL_Practice.Models.Classes
             Paused = paused;
         }
 
-        public static Animation FromString(string fileName, TextureService service, bool loops = true, double frameRate = 0.5, bool paused = true)
+        public static Animation FromString(string fileName, bool loops = true, double frameRate = 0.5, bool paused = true)
         {
-            var sprites = new List<Sprite> { new Sprite(fileName, service) };
+            var sprites = new List<Sprite> { new Sprite(fileName) };
             return new Animation(sprites, loops, frameRate, paused);
         }
 

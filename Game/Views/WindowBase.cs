@@ -12,8 +12,7 @@ namespace OpenGL_Practice.Views
     public abstract class WindowBase : GameWindow
     {
         protected InputService InputService;
-        protected TextureService TextureService;
-        public RectangleF CurrentView = new RectangleF(0, 0, 800, 600);
+        public RectangleF CurrentView = new RectangleF(0, 0, 800, 640);
 
         private int _buffers;
         protected List<ModelBase> Models = new List<ModelBase>();
@@ -24,7 +23,6 @@ namespace OpenGL_Practice.Views
         protected WindowBase() : base(1, 1, new OpenTK.Graphics.GraphicsMode(new OpenTK.Graphics.ColorFormat(8, 8, 8, 8), 3, 3, 4), "WINDOW", GameWindowFlags.Default, DisplayDevice.Default, 3, 0, OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible)
         {
             InputService = new InputService();
-            TextureService = new TextureService();
             Run(60, 60);
         }
 

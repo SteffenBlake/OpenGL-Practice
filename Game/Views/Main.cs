@@ -25,7 +25,14 @@ namespace OpenGL_Practice.Views
 
         protected override void LoadModels()
         {
-            Models.Add(new Doge(TextureService));
+            var rnd = new Random();
+            Models.Add(new Doge());
+            for (var n = 0; n <= 500; n++)
+            {
+                float x = rnd.Next(-800, 800);
+                float y = rnd.Next(-640, 640);
+                Models.Add(new Cloud(x, y));
+            }
         }
 
         private void EndProgram()

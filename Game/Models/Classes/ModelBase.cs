@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using OpenGL_Practice.Services.Classes;
+using OpenTK;
 
 namespace OpenGL_Practice.Models.Classes
 {
     public abstract class ModelBase
     {
         public ObjectBase Model { get; set; }
-
-        protected TextureService TextureService;
-
         protected abstract Dictionary<string, Animation> Animations();
         protected virtual IAlignment Alignment() => Alignments.TrueCenter;
         protected virtual float FrameRate() => 0.5f;
@@ -23,10 +21,14 @@ namespace OpenGL_Practice.Models.Classes
         protected virtual float YScale() => 1f;
         protected virtual float Rotation() => 0.0f;
 
-        protected ModelBase(TextureService textureService)
+        protected ModelBase(float? x = null, float? y = null, float? xScale = null, float? yScale = null, float? rotation = null )
         {
-            TextureService = textureService;
             Model = new ObjectBase(Animations(), Alignment(), FrameRate(), Loops(), InitialAnimation(), Pause(), Visible(), X(), Y(), XScale(), YScale(), Rotation());
+            if (x.HasValue) Model.Position = new Vector2(x.Value, Model.Position.Y);
+            if (y.HasValue) Model.Position = new Vector2(Model.Position.X, y.Value);
+            if (xScale.HasValue) Model.Scale = new Vector2(xScale.Value, Model.Scale.Y);
+            if (yScale.HasValue) Model.Scale = new Vector2(Model.Scale.X, yScale.Value);
+            if (rotation.HasValue) Model.Rotation = rotation.Value;
         }
     }
 }

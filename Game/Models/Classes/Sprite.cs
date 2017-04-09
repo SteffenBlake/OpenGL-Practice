@@ -5,10 +5,10 @@ namespace OpenGL_Practice.Models.Classes
 {
     public class Sprite
     {
-        public Sprite(string fileName, TextureService service)
+        public Sprite(string fileName)
         {
-            TextureId = service.GetTexture(Assets.GetImage(fileName));
-            Size = service.GetSize(TextureId);
+            TextureId = TextureService.GetTexture(Assets.GetImage(fileName));
+            Size = TextureService.GetSize(TextureId);
         }
         public Vector2 Size { get; set; }
         public int TextureId { get; set; }
