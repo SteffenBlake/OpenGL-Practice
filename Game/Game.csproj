@@ -34,6 +34,26 @@
   <PropertyGroup>
     <StartupObject>OpenGL_Practice.StartUp</StartupObject>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="bin\Debug\Assets\Shaders\default.vert" />
@@ -66,7 +86,6 @@
     <Compile Include="StartUp.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="bin\Debug\Assets\Sounds\" />
     <Folder Include="Controllers\Classes\" />
     <Folder Include="Controllers\Interfaces\" />
   </ItemGroup>
@@ -89,6 +108,7 @@
     <Content Include="bin\Debug\Assets\Images\Doge.bmp" />
     <Content Include="bin\Debug\Assets\Images\doge.ico" />
     <Content Include="bin\Debug\Assets\Images\Doge.png" />
+    <Content Include="bin\Debug\Assets\Sounds\moon.mp3" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

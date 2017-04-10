@@ -20,9 +20,12 @@ namespace OpenGL_Practice.Views
         private Shader _shader;
         private bool Updated { get; set; }
 
-        protected WindowBase() : base(1, 1, new OpenTK.Graphics.GraphicsMode(new OpenTK.Graphics.ColorFormat(8, 8, 8, 8), 3, 3, 4), "WINDOW", GameWindowFlags.Default, DisplayDevice.Default, 3, 0, OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible)
+        protected WindowBase() : base(800, 640, new OpenTK.Graphics.GraphicsMode(new OpenTK.Graphics.ColorFormat(8, 8, 8, 8), 3, 3, 4), "WINDOW", GameWindowFlags.Default, DisplayDevice.Default, 3, 0, OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible)
         {
+            Updated = false;
             InputService = new InputService();
+            CurrentView.Size = new SizeF(ClientSize.Width, ClientSize.Height);
+            _ortho = Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, -2.0f, 50.0f);
             Run(60, 60);
         }
 
@@ -45,13 +48,13 @@ namespace OpenGL_Practice.Views
             Height = _defaultHeight();
             Title = _defaultTitle();
             Icon = new Icon(Assets.GetImage(_defaultIcon()));
-            _shader = new Shader(_defaultVertShader(), _defaultFragShader());
-
-            SubscribeEvents();
-            LoadModels();
 
             GL.ClearColor(_defaultBackground());
             GL.Viewport(0, 0, Width, Height);
+
+            SubscribeEvents();
+            LoadModels();
+            _shader = new Shader(_defaultVertShader(), _defaultFragShader());
 
             GL.UseProgram(_shader.ProgramId);
             GL.GenBuffers(1, out _buffers);
@@ -75,10 +78,10 @@ namespace OpenGL_Practice.Views
             foreach (var model in Models)
             {
                 if (!model.Model.Visible) continue;
-
-                GL.BindTexture(TextureTarget.Texture2D, model.Model.CurrentSprite().TextureId);
+                var textureId = model.Model.CurrentSprite().TextureId;
+                GL.BindTexture(TextureTarget.Texture2D, textureId);
                 GL.UniformMatrix4(_shader.Uniform("mvp"), false, ref model.Model.ModelViewProjectionMatrix);
-                GL.Uniform1(_shader.Attribute("mytexture"), model.Model.CurrentSprite().TextureId);
+                GL.Uniform1(_shader.Attribute("mytexture"), textureId);
                 GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, offset * sizeof(uint));
                 offset += 6;
             }

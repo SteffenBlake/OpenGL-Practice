@@ -7,7 +7,7 @@ namespace OpenGL_Practice.Models.Classes
     {
         public Sprite(string fileName)
         {
-            TextureId = TextureService.GetTexture(Assets.GetImage(fileName));
+            TextureId = TextureService.GetTexture(fileName);
             Size = TextureService.GetSize(TextureId);
         }
         public Vector2 Size { get; set; }

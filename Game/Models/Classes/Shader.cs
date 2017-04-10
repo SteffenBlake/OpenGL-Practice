@@ -50,8 +50,10 @@ namespace OpenGL_Practice.Models.Classes
             {
                 var info = new AttributeBase();
                 var name = new StringBuilder();
+                int length;
 
-                GL.GetActiveAttrib(ProgramId, i, 256, out int length, out info.Size, out info.Type, name);
+
+                GL.GetActiveAttrib(ProgramId, i, 256, out length, out info.Size, out info.Type, name);
 
                 info.Name = name.ToString();
                 info.Address = GL.GetAttribLocation(ProgramId, info.Name);
@@ -61,10 +63,10 @@ namespace OpenGL_Practice.Models.Classes
             for (var i = 0; i < _uniformCount; i++)
             {
                 var info = new UniformBase();
-
                 var name = new StringBuilder();
+                int length;
 
-                GL.GetActiveUniform(ProgramId, i, 256, out int length, out info.Size, out info.Type, name);
+                GL.GetActiveUniform(ProgramId, i, 256, out length, out info.Size, out info.Type, name);
 
                 info.Name = name.ToString();
                 info.Address = GL.GetUniformLocation(ProgramId, info.Name);
@@ -74,7 +76,12 @@ namespace OpenGL_Practice.Models.Classes
 
         public void GenBuffers()
         {
-            foreach (var name in _attributes.Values.Concat<InfoBase>(_uniforms.Values).Select(i => i.Name))
+            foreach (var name in _attributes.Values.Select(i => i.Name))
+            {
+                GL.GenBuffers(1, out uint buffer);
+                _buffers[name] = buffer;
+            }
+            foreach (var name in _uniforms.Values.Select(i => i.Name))
             {
                 GL.GenBuffers(1, out uint buffer);
                 _buffers[name] = buffer;
@@ -119,7 +126,7 @@ namespace OpenGL_Practice.Models.Classes
         public int Address;
         public int Size;
 
-        protected InfoBase(string name = "", int address = -1, int size = 0)
+        protected InfoBase(string name, int address, int size)
         {
             Name = name;
             Address = address;
@@ -130,10 +137,12 @@ namespace OpenGL_Practice.Models.Classes
     public class UniformBase : InfoBase
     {
         public ActiveUniformType Type;
+        public UniformBase(string name = "", int address = -1, int size = 0) : base(name, address, size) { }
     }
 
     public class AttributeBase : InfoBase
     {
         public ActiveAttribType Type;
+        public AttributeBase(string name = "", int address = -1, int size = 0) : base(name, address, size) { }
     }
 }

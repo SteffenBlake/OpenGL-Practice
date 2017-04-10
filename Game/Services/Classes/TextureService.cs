@@ -12,12 +12,12 @@ namespace OpenGL_Practice.Services.Classes
         private static readonly Dictionary<string, int> TextureDict = new Dictionary<string,int>();
         private static readonly Dictionary<int, Vector2> SizeDict = new Dictionary<int, Vector2>();
 
-        public static int  GetTexture(string fileName)
+        public static int GetTexture(string fileName)
         {
             if (TextureDict.ContainsKey(fileName)) return TextureDict[fileName];
 
 
-            var image = new Bitmap(Image.FromFile(Assets.GetImage("Doge.bmp")));
+            var image = new Bitmap(Image.FromFile(Assets.GetImage(fileName)));
             var texId = GL.GenTexture();
 
             GL.BindTexture(TextureTarget.Texture2D, texId);
