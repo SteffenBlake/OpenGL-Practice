@@ -52,15 +52,17 @@ namespace OpenGL_Practice.Views
         {
             base.OnRenderFrame(events);
 
-            //if (doge.Model.Position.X - doge.Model.Size.X <= Width || doge.Model.Position.X + doge.Model.Size.X >= Width)
-            //{
-            //    dogeSpeed = new Vector2(-dogeSpeed.X, dogeSpeed.Y);
-            //}
+            if (doge.Model.Position.X - doge.Model.HalfWidth <= 0 || doge.Model.Position.X + doge.Model.HalfWidth >= Width)
+            {
+                dogeSpeed = new Vector2(-dogeSpeed.X, dogeSpeed.Y);
+                AudioService.PlaySound("bork.wav");
+            }
 
-            //if (doge.Model.Position.Y - doge.Model.Size.Y <= Height || doge.Model.Position.Y + doge.Model.Size.Y >= Height)
-            //{
-            //    dogeSpeed = new Vector2(dogeSpeed.X, -dogeSpeed.Y);
-            //}
+            if (doge.Model.Position.Y - doge.Model.HalfHeight <= 0 || doge.Model.Position.Y + doge.Model.HalfHeight >= Height)
+            {
+                dogeSpeed = new Vector2(dogeSpeed.X, -dogeSpeed.Y);
+                AudioService.PlaySound("bork.wav");
+            }
 
             doge.Model.Slide(dogeSpeed);
 
@@ -69,8 +71,7 @@ namespace OpenGL_Practice.Views
         protected override void OnLoad(EventArgs events)
         {
             base.OnLoad(events);
-            var player = new SoundPlayer(Assets.GetSound("moon.wav"));
-            player.PlayLooping();
+            AudioService.PlaySound("moon.wav");
         }
     }
 }

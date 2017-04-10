@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using OpenGL_Practice.Models.Interfaces;
@@ -150,5 +151,8 @@ namespace OpenGL_Practice.Models.Classes
         }
 
         public Vector2 Size => new Vector2(CurrentSprite().Size.X * Scale.X, CurrentSprite().Size.Y * Scale.Y);
+
+        public float HalfWidth => Math.Abs(Size.X / 2);
+        public float HalfHeight => Math.Abs(Size.Y / 2);
     }
 }

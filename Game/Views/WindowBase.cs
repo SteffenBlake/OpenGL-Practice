@@ -12,6 +12,7 @@ namespace OpenGL_Practice.Views
     public abstract class WindowBase : GameWindow
     {
         protected InputService InputService;
+        protected AudioService AudioService;
         public RectangleF CurrentView = new RectangleF(0, 0, 800, 640);
 
         private int _buffers;
@@ -24,6 +25,7 @@ namespace OpenGL_Practice.Views
         {
             Updated = false;
             InputService = new InputService();
+            AudioService = new AudioService();
             CurrentView.Size = new SizeF(ClientSize.Width, ClientSize.Height);
             _ortho = Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, -2.0f, 50.0f);
             Run(60, 60);
