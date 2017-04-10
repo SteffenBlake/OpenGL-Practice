@@ -5,6 +5,7 @@ namespace OpenGL_Practice.Services.Classes
     {
         private static readonly string CurrentDir = Directory.GetCurrentDirectory() + "\\Assets\\";
         public static string GetImage(string fileName) => CurrentDir + "Images\\" + fileName;
+        public static string GetSound(string fileName) => CurrentDir + "Sounds\\" + fileName;
 
         public static string GetShader(string fileName)
         {
@@ -13,5 +14,6 @@ namespace OpenGL_Practice.Services.Classes
                 return reader.ReadToEnd();
             }
         }
+
     }
 }

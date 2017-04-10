@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Media;
 using OpenGL_Practice.Models;
 using OpenGL_Practice.Models.Classes;
+using OpenGL_Practice.Services.Classes;
+using OpenTK;
 using OpenTK.Input;
 
 namespace OpenGL_Practice.Views
@@ -17,6 +20,11 @@ namespace OpenGL_Practice.Views
         protected override string _defaultFragShader() => "default.frag";
         protected override Color _defaultBackground() => Color.CornflowerBlue;
 
+        private Random rnd = new Random();
+
+        private Doge doge;
+        private Vector2 dogeSpeed;
+
         protected override void SubscribeEvents()
         {
             InputService.Subscribe(Key.Escape, EndProgram);
@@ -25,14 +33,9 @@ namespace OpenGL_Practice.Views
 
         protected override void LoadModels()
         {
-            var rnd = new Random();
-            Models.Add(new Doge());
-            for (var n = 0; n <= 500; n++)
-            {
-                float x = rnd.Next(-800, 800);
-                float y = rnd.Next(-640, 640);
-                Models.Add(new Cloud(x, y));
-            }
+            doge = new Doge(rnd.Next(300, 500), rnd.Next(200, 400));
+            Models.Add(doge);
+            dogeSpeed = new Vector2(2, 2);
         }
 
         private void EndProgram()
@@ -43,6 +46,31 @@ namespace OpenGL_Practice.Views
         private void Down()
         {
             Console.WriteLine("Pressed down");
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs events)
+        {
+            base.OnRenderFrame(events);
+
+            //if (doge.Model.Position.X - doge.Model.Size.X <= Width || doge.Model.Position.X + doge.Model.Size.X >= Width)
+            //{
+            //    dogeSpeed = new Vector2(-dogeSpeed.X, dogeSpeed.Y);
+            //}
+
+            //if (doge.Model.Position.Y - doge.Model.Size.Y <= Height || doge.Model.Position.Y + doge.Model.Size.Y >= Height)
+            //{
+            //    dogeSpeed = new Vector2(dogeSpeed.X, -dogeSpeed.Y);
+            //}
+
+            doge.Model.Slide(dogeSpeed);
+
+        }
+
+        protected override void OnLoad(EventArgs events)
+        {
+            base.OnLoad(events);
+            var player = new SoundPlayer(Assets.GetSound("moon.wav"));
+            player.PlayLooping();
         }
     }
 }

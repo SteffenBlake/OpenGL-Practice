@@ -21,7 +21,7 @@ namespace OpenGL_Practice.Models.Classes
         protected virtual float YScale() => 1f;
         protected virtual float Rotation() => 0.0f;
 
-        protected ModelBase(float? x = null, float? y = null, float? xScale = null, float? yScale = null, float? rotation = null )
+        protected ModelBase(float? x, float? y, float? xScale, float? yScale, float? rotation)
         {
             Model = new ObjectBase(Animations(), Alignment(), FrameRate(), Loops(), InitialAnimation(), Pause(), Visible(), X(), Y(), XScale(), YScale(), Rotation());
             if (x.HasValue) Model.Position = new Vector2(x.Value, Model.Position.Y);

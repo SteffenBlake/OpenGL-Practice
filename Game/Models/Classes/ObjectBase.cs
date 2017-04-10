@@ -139,6 +139,11 @@ namespace OpenGL_Practice.Models.Classes
             Position = new Vector2(Position.X + x, Position.Y + y);
         }
 
+        public void Slide(Vector2 distance)
+        {
+            Position = new Vector2(Position.X + distance.X, Position.Y + distance.Y);
+        }
+
         public void Stretch(float x = 1, float y = 1)
         {
             Scale = new Vector2(Scale.X * x, Scale.Y * y);

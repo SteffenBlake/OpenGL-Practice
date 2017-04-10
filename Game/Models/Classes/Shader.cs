@@ -111,7 +111,7 @@ namespace OpenGL_Practice.Models.Classes
 
         public int Uniform(string name)
         {
-            return _uniforms.ContainsKey("name") ? _uniforms[name].Address : -1;
+            return _uniforms.ContainsKey(name) ? _uniforms[name].Address : -1;
         }
 
         public uint Buffer(string name)
