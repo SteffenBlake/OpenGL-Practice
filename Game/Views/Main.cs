@@ -55,13 +55,13 @@ namespace OpenGL_Practice.Views
             if (doge.Model.Position.X - doge.Model.HalfWidth <= 0 || doge.Model.Position.X + doge.Model.HalfWidth >= Width)
             {
                 dogeSpeed = new Vector2(-dogeSpeed.X, dogeSpeed.Y);
-                AudioService.PlaySound("bork.wav");
+                AudioService.LoadSound("bork.wav").Play();
             }
 
             if (doge.Model.Position.Y - doge.Model.HalfHeight <= 0 || doge.Model.Position.Y + doge.Model.HalfHeight >= Height)
             {
                 dogeSpeed = new Vector2(dogeSpeed.X, -dogeSpeed.Y);
-                AudioService.PlaySound("bork.wav");
+                AudioService.LoadSound("bork.wav").Play();
             }
 
             doge.Model.Slide(dogeSpeed);
@@ -71,7 +71,7 @@ namespace OpenGL_Practice.Views
         protected override void OnLoad(EventArgs events)
         {
             base.OnLoad(events);
-            AudioService.PlaySound("moon.wav");
+            AudioService.LoadSound("moon.wav", true).Play();
         }
     }
 }

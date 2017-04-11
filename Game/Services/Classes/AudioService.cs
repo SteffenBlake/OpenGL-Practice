@@ -1,122 +1,199 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-using OpenGL_Practice.Services.Interfaces;
+using System.IO;
+using OpenTK.Audio;
+using OpenTK.Audio.OpenAL;
 
 namespace OpenGL_Practice.Services.Classes
 {
-    public class AudioService : IDisposable, IAudioService
+    internal class WaveReader
     {
-        public static readonly AudioService Instance = new AudioService();
-        private readonly MixingSampleProvider _mixer;
-        private readonly IWavePlayer _outputDevice;
+        public string FileName { get; private set; }
 
-        public AudioService(int sampleRate = 44100, int channelCount = 2)
+        public string Signature => _signature;
+        private string _signature;
+
+        public int RiffSize { get; private set; }
+
+        public string Format => _format;
+        private string _format;
+
+        public string FormatSig => _formatSig;
+        private string _formatSig;
+
+        public int FormatChunk { get; private set; }
+        public int AudioFormat { get; private set; }
+        public int Channels { get; private set; }
+        public int SampleRate { get; private set; }
+        public int ByteRate { get; private set; }
+        public int Align { get; private set; }
+        public int SampleBits { get; private set; }
+
+        public string DataSig => _dataSig;
+        private string _dataSig;
+
+        public int DataChunk { get; private set; }
+        public byte[] Data { get; private set; }
+
+        public ALFormat SoundFormat =>
+            Channels == 1
+                ? SampleBits == 8
+                    ? ALFormat.Mono8
+                    : ALFormat.Mono16
+                : SampleBits == 8
+                    ? ALFormat.Stereo8
+                    : ALFormat.Stereo16;
+
+        public WaveReader(string fileName)
         {
-            _outputDevice = new WaveOutEvent();
-            _mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount))
+            if (!fileName.Contains(".wav"))
+                throw new NotSupportedException("ENGINE only supports RIFF format Wave files");
+
+            var target = Assets.GetSound(fileName);
+            if (!File.Exists(target)) throw new FileNotFoundException();
+
+            using (var reader = new BinaryReader(File.Open(target, FileMode.Open)))
             {
-                ReadFully = true
-            };
-            _outputDevice.Init(_mixer);
-            _outputDevice.Play();
+                FileName = fileName;
+
+                CheckDataString(out _signature, reader, 4, "RIFF");
+                RiffSize = reader.ReadInt32();
+                CheckDataString(out _format, reader, 4, "WAVE");
+                CheckDataString(out _formatSig, reader, 4, "fmt ");
+                FormatChunk = reader.ReadInt32();
+                AudioFormat = reader.ReadInt16();
+                Channels = reader.ReadInt16();
+                SampleRate = reader.ReadInt32();
+                ByteRate = reader.ReadInt32();
+                Align = reader.ReadInt16();
+                SampleBits = reader.ReadInt16();
+
+                CheckDataString(out _dataSig, reader, 4, "data");
+
+                DataChunk = reader.ReadInt32();
+
+                Data = reader.ReadBytes((int)reader.BaseStream.Length);
+            }
+        }
+
+        private void CheckDataString(out string targetString, BinaryReader reader, int buffer, string expected)
+        {
+            var output = new string(reader.ReadChars(buffer));
+            if (output != expected) throw new NotSupportedException("ENGINE only supports RIFF format Wave files");
+            targetString = output;
+        }
+    }
+
+    public class AudioService
+    {
+        private AudioContext _driver;
+        private bool _connected;
+        private List<SoundBase> _soundLibrary;
+
+        public void Connect()
+        {
+            _driver = new AudioContext();
+            _soundLibrary = new List<SoundBase>();
+            _connected = true;
+        }
+
+        public SoundBase LoadSound(string filename, bool looping = false)
+        {
+            if (!_connected) return null;
+            var sound = new SoundBase(filename, looping);
+            _soundLibrary.Add(sound);
+            return sound;
+        }
+
+        public void Validate()
+        {
+            if (!_connected) return;
+
+            var n = 0;
+            while (n < _soundLibrary.Count)
+            {
+                var sound = _soundLibrary[n];
+                if (sound.State() != ALSourceState.Stopped)
+                {
+                    n++;
+                    continue;
+                }
+
+                if (sound.Looping)
+                {
+                    sound.Play();
+                    n++;
+                    continue;
+                }
+
+                if (!sound.Played) continue;
+
+                sound.Dispose();
+                _soundLibrary.Remove(sound);
+            }
+        }
+
+        public void Reset()
+        {
+            foreach (var sound in _soundLibrary)
+            {
+                sound.Dispose();
+            }
+            _soundLibrary = new List<SoundBase>();
         }
 
         public void Dispose()
         {
-            _outputDevice.Dispose();
+            Reset();
+            _driver.Dispose();
+            _connected = false;
         }
 
-        public void PlaySound(string fileName, bool loop = false)
-        {
-            var input = new AudioFileReader(Assets.GetSound(fileName));
-            AddMixerInput(new AutoDisposeFileReader(input));
-        }
-
-        private ISampleProvider ConvertToRightChannelCount(ISampleProvider input)
-        {
-            if (input.WaveFormat.Channels == _mixer.WaveFormat.Channels)
-                return input;
-            if (input.WaveFormat.Channels == 1 && _mixer.WaveFormat.Channels == 2)
-                return new MonoToStereoSampleProvider(input);
-            throw new NotImplementedException("Not yet implemented this channel count conversion");
-        }
-
-        private void AddMixerInput(ISampleProvider input)
-        {
-            _mixer.AddMixerInput(ConvertToRightChannelCount(input));
-        }
     }
 
-    internal class AutoDisposeFileReader : ISampleProvider
+    public class SoundBase
     {
-        private readonly AudioFileReader _reader;
-        private bool _isDisposed;
-        private bool _looping;
+        public string FileName { get; private set; }
+        private readonly int _bufferId;
+        private readonly int _sourceId;
+        public bool Played;
 
-        public AutoDisposeFileReader(AudioFileReader reader)
+        public bool Looping { get; set; }
+
+        public SoundBase(string fileName, bool looping = false)
         {
-            _reader = reader;
-            WaveFormat = reader.WaveFormat;
+            FileName = fileName;
+            _bufferId = AL.GenBuffer();
+            _sourceId = AL.GenSource();
+            Looping = looping;
+            var reader = new WaveReader(fileName);
+            AL.BufferData(_bufferId, reader.SoundFormat, reader.Data, reader.Data.Length, reader.SampleRate);
+            AL.Source(_sourceId, ALSourcei.Buffer, _bufferId);
         }
 
-        public int Read(float[] buffer, int offset, int count)
+        public SoundBase Play()
         {
-            if (_isDisposed)
-                return 0;
-            var read = _reader.Read(buffer, offset, count);
-
-            if (read != 0) return read;
-
-            _reader.Dispose();
-            _isDisposed = true;
-            return read;
+            AL.SourcePlay(_sourceId);
+            Played = true;
+            return this;
         }
 
-        public WaveFormat WaveFormat { get; }
-    }
-
-    internal class CachedSoundSampleProvider : ISampleProvider
-    {
-        private readonly CachedSound _cachedSound;
-        private long _position;
-
-        public CachedSoundSampleProvider(CachedSound cachedSound)
+        public SoundBase Pause()
         {
-            _cachedSound = cachedSound;
+            AL.SourcePause(_sourceId);
+            return this;
         }
 
-        public int Read(float[] buffer, int offset, int count)
+        public void Dispose()
         {
-            var availableSamples = _cachedSound.AudioData.Length - _position;
-            var samplesToCopy = Math.Min(availableSamples, count);
-            Array.Copy(_cachedSound.AudioData, _position, buffer, offset, samplesToCopy);
-            _position += samplesToCopy;
-            return (int) samplesToCopy;
+            AL.SourceStop(_sourceId);
+            AL.DeleteSource(_sourceId);
+            AL.DeleteBuffer(_bufferId);
         }
 
-        public WaveFormat WaveFormat => _cachedSound.WaveFormat;
-    }
-
-    internal class CachedSound
-    {
-        public CachedSound(string audioFileName)
+        public ALSourceState State()
         {
-            using (var audioFileReader = new AudioFileReader(audioFileName))
-            {
-                WaveFormat = audioFileReader.WaveFormat;
-                var wholeFile = new List<float>((int) (audioFileReader.Length / 4));
-                var readBuffer = new float[audioFileReader.WaveFormat.SampleRate * audioFileReader.WaveFormat.Channels];
-                int samplesRead;
-                while ((samplesRead = audioFileReader.Read(readBuffer, 0, readBuffer.Length)) > 0)
-                    wholeFile.AddRange(readBuffer.Take(samplesRead));
-                AudioData = wholeFile.ToArray();
-            }
+            return AL.GetSourceState(_sourceId);
         }
-
-        public float[] AudioData { get; }
-        public WaveFormat WaveFormat { get; }
     }
 }

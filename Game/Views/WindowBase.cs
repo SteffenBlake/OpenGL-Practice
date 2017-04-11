@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using OpenGL_Practice.Models.Classes;
 using OpenGL_Practice.Services.Classes;
@@ -28,7 +29,6 @@ namespace OpenGL_Practice.Views
             AudioService = new AudioService();
             CurrentView.Size = new SizeF(ClientSize.Width, ClientSize.Height);
             _ortho = Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, -2.0f, 50.0f);
-            Run(60, 60);
         }
 
         protected abstract int _defaultWidth();
@@ -62,6 +62,8 @@ namespace OpenGL_Practice.Views
             GL.GenBuffers(1, out _buffers);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+            AudioService.Connect();
         }
 
         protected override void OnRenderFrame(FrameEventArgs events)
@@ -101,6 +103,8 @@ namespace OpenGL_Practice.Views
             var indices = new List<int>();
 
             var offset = 0;
+
+            AudioService.Validate(); //check if any sounds need disposing!
 
             foreach (var model in Models)
             {
@@ -162,6 +166,12 @@ namespace OpenGL_Practice.Views
         {
             base.OnKeyDown(key);
             InputService.HandleKey(key.Key, false);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            AudioService.Dispose();
         }
     }
 }

@@ -82,7 +82,6 @@
     <Compile Include="Services\Classes\Alignments.cs" />
     <Compile Include="Services\Classes\Assets.cs" />
     <Compile Include="Services\Classes\AudioService.cs" />
-    <Compile Include="Services\Interfaces\IAudioService.cs" />
     <Compile Include="Services\Classes\TextureService.cs" />
     <Compile Include="Services\Interfaces\IInputService.cs" />
     <Compile Include="Services\Classes\InputService.cs" />
@@ -96,14 +95,11 @@
     <Folder Include="Controllers\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTKWithOpenAL.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -120,4 +116,8 @@
     <Content Include="doge.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+xcopy /s /y "$(SolutionDir)packages\OpenTKWithOpenAL.1.1.1589.5942\NativeBinaries\x86\*.*" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
