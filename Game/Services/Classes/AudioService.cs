@@ -89,6 +89,11 @@ namespace OpenGL_Practice.Services.Classes
         private AudioContext _driver;
         private bool _connected;
         private List<SoundBase> _soundLibrary;
+        private readonly double _holdTime; //Time to hold onto sounds before disposing
+        public AudioService(double holdTime = 5f)
+        {
+            _holdTime = holdTime;
+        }
 
         public void Connect()
         {
@@ -105,7 +110,7 @@ namespace OpenGL_Practice.Services.Classes
             return sound;
         }
 
-        public void Validate()
+        public void Validate(double dtime)
         {
             if (!_connected) return;
 
@@ -126,7 +131,11 @@ namespace OpenGL_Practice.Services.Classes
                     continue;
                 }
 
-                if (!sound.Played) continue;
+                if (!sound.Played)
+                {
+                    n++;
+                    continue;
+                }
 
                 sound.Dispose();
                 _soundLibrary.Remove(sound);
@@ -157,6 +166,7 @@ namespace OpenGL_Practice.Services.Classes
         private readonly int _bufferId;
         private readonly int _sourceId;
         public bool Played;
+        public double _holdTime;
 
         public bool Looping { get; set; }
 
@@ -166,6 +176,7 @@ namespace OpenGL_Practice.Services.Classes
             _bufferId = AL.GenBuffer();
             _sourceId = AL.GenSource();
             Looping = looping;
+            _holdTime = 0;
             var reader = new WaveReader(fileName);
             AL.BufferData(_bufferId, reader.SoundFormat, reader.Data, reader.Data.Length, reader.SampleRate);
             AL.Source(_sourceId, ALSourcei.Buffer, _bufferId);
@@ -175,6 +186,7 @@ namespace OpenGL_Practice.Services.Classes
         {
             AL.SourcePlay(_sourceId);
             Played = true;
+            _holdTime = 0;
             return this;
         }
 
@@ -194,6 +206,20 @@ namespace OpenGL_Practice.Services.Classes
         public ALSourceState State()
         {
             return AL.GetSourceState(_sourceId);
+        }
+
+        /// <summary>
+        /// Decays the Hold Time of the sound. Call it once it stops.
+        /// </summary>
+        /// <param name="dTime"></param>
+        public void Tick(double dTime)
+        {
+            _holdTime += dTime;
+        }
+
+        public bool Complete(double holdTime)
+        {
+            return _holdTime >= holdTime;
         }
     }
 }

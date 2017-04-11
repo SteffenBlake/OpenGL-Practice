@@ -79,6 +79,8 @@ namespace OpenGL_Practice.Views
             GL.UseProgram(_shader.ProgramId);
             _shader.EnableVertexAttribArrays();
 
+            AudioService.Validate(events.Time); //check if any sounds need disposing!
+
             foreach (var model in Models)
             {
                 if (!model.Model.Visible) continue;
@@ -103,9 +105,7 @@ namespace OpenGL_Practice.Views
             var indices = new List<int>();
 
             var offset = 0;
-
-            AudioService.Validate(); //check if any sounds need disposing!
-
+            
             foreach (var model in Models)
             {
                 model.Model.Step(events.Time);
