@@ -137,7 +137,7 @@ namespace OpenGL_Practice.Services.Classes
 
         public List<Line> Lines
             => Vertices.Select((v, n) =>
-                new Line(Vertices[n], Vertices[n == Vertices.Count - 1 ? 0 : n+1])).ToList();
+                new Line(Vertices[n], Vertices[n + 1 % Vertices.Count])).ToList();
 
         public List<double> Angles => Lines.Select(Physics.Angle).ToList();
 
