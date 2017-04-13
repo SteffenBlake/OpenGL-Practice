@@ -15,5 +15,14 @@
             Center,
             Bottom
         }
+
+        public enum VectorDirection
+        {
+            Left,
+            Right,
+            Horizontal,
+            Vertical,
+            Point
+        }
     }
 }
